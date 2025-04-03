@@ -19,9 +19,12 @@ public class ReportController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
 
     @GetMapping(createReportMapping)
-    public ResponseEntity<?> createReport(@PathVariable String id, @RequestParam String template, @RequestParam String format) {
+    public ResponseEntity<?> createReport(@PathVariable Long id,
+                                          @RequestParam String template,
+                                          @RequestParam String name,
+                                          @RequestParam String format) {
         LOGGER.info("{Start Report Generator Application}");
-        LOGGER.info("Params: {}, {}, {}", id, template, format);
+        LOGGER.info("Params: {}, {}, {}, {}", id, template, name, format);
 
 
         return null;
