@@ -1,6 +1,8 @@
 package com.iim.service.report.api.controller;
 
+import com.iim.service.report.api.service.ReportGeneratorService;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,9 @@ import static com.iim.service.report.api.constant.Path.createReportMapping;
 @RestController
 @RequestMapping(baseUrl)
 public class ReportController {
+
+    @Autowired
+    private ReportGeneratorService reportGeneratorService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
 
