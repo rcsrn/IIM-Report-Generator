@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 
+import javax.sql.DataSource;
+
 import static com.iim.service.report.api.constant.Path.baseUrl;
 import static com.iim.service.report.api.constant.Path.createReportMapping;
 
@@ -18,8 +20,11 @@ import static com.iim.service.report.api.constant.Path.createReportMapping;
 @RequestMapping(baseUrl)
 public class ReportController {
 
-    @Autowired
     private ReportGeneratorService reportGeneratorService;
+
+    public ReportController(ReportGeneratorService reportGeneratorService, DataSource dataSource) {
+        this.reportGeneratorService = reportGeneratorService;
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
 
