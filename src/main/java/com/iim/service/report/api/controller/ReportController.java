@@ -22,7 +22,7 @@ public class ReportController {
 
     private ReportGeneratorService reportGeneratorService;
 
-    public ReportController(ReportGeneratorService reportGeneratorService, DataSource dataSource) {
+    public ReportController(ReportGeneratorService reportGeneratorService) {
         this.reportGeneratorService = reportGeneratorService;
     }
 
@@ -36,7 +36,6 @@ public class ReportController {
         LOGGER.info("{Start Report Generator Application}");
         LOGGER.info("Params: {}, {}, {}, {}", id, template, name, format);
 
-
-        return null;
+        return ResponseEntity.ok().body(reportGeneratorService.generateReport(id, name, template, format));
     }
 }
