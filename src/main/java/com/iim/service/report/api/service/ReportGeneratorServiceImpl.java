@@ -37,8 +37,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Override
     public byte[] generateReport(Long id, String reportName, String template, String format) {
         LOGGER.info("Started report generation...");
-        String jrxmlFile = reportName + ".jrxml";
-        String jasperFile = reportName + ".jasper";
+        String jrxmlFile = template + ".jrxml";
+        String jasperFile = template + ".jasper";
 
         String inputPath = "/templates/" + jrxmlFile;
         LOGGER.info("Input Path: {}", inputPath);
@@ -59,10 +59,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         } catch (IOException ioException) {
             LOGGER.error("The file {} cannot be opened. Exception Message: {}", jrxmlFile, ioException.getMessage());
+            return null;
         } catch (JRException jre) {
             LOGGER.error("The file {} cannot be compiled. Exception Message: {}", jrxmlFile, jre.getMessage());
+            return null;
         } catch (SQLException sqle) {
             LOGGER.error("Report {} cannot be filled, problem while creating connection. Exception Message: {}", jasperFile, sqle.getMessage());
+            return null;
         };
 
         LOGGER.info("Report created successfully");

@@ -31,11 +31,11 @@ public class ReportController {
     @GetMapping(createReportMapping)
     public ResponseEntity<?> createReport(@PathVariable Long id,
                                           @RequestParam String template,
-                                          @RequestParam String name,
+                                          @RequestParam String reportName,
                                           @RequestParam String format) {
         LOGGER.info("{Start Report Generator Application}");
-        LOGGER.info("Params: {}, {}, {}, {}", id, template, name, format);
+        LOGGER.info("Params: {}, {}, {}, {}", id, reportName, template, format);
 
-        return ResponseEntity.ok().body(reportGeneratorService.generateReport(id, name, template, format));
+        return ResponseEntity.ok().body(reportGeneratorService.generateReport(id, reportName, template, format));
     }
 }
