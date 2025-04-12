@@ -11,6 +11,7 @@ import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,9 @@ import static com.iim.service.report.api.constant.Constant.PDF_FORMAT;
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private final DataSource dataSource;
+
+    @Value("${app.reports.directory}")
+    private String outputDirectory;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
 
@@ -77,21 +81,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return retrieveReport(reportName, format);
     }
 
-    private Resource retrieveReport(String reportName, String format) {
-        String report = reportName + "." + format;
-        String reportPath = System.getProperty("java.io.tmpdir") + File.separator + report;
-        File file = new File(reportPath);
-
-        try {
-            if (file.exists())
-                return new InputStreamResource(new FileInputStream(file));
-        } catch (FileNotFoundException fnfe) {
-            LOGGER.error("Report {} cannot be retrieved. Exception Message: {}", report, fnfe.getMessage());
-        }
-
-        return null;
-    }
-
     private void decideExportBasedOnInputFormat(String format, String reportName, JasperPrint jasperPrint) {
         if (format.equals(PDF_FORMAT)) {
             exportPDFReport(jasperPrint, reportName);
@@ -100,7 +89,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private void exportPDFReport(JasperPrint jasperPrint, String reportName) {
         String pdfFile = reportName + ".pdf";
-        String outputPath = System.getProperty("java.io.tmpdir") + File.separator + pdfFile;
+        String outputPath = outputDirectory + File.separator + pdfFile;
 
         LOGGER.info("Exporting pdf file: {} into {}", reportName, outputPath);
 
@@ -113,5 +102,20 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         } catch (JRException jre) {
             LOGGER.error("Report {} cannot be exported, problem while creating connection. Exception Message: {}", jasperPrint, jre.getMessage());
         }
+    }
+
+    private Resource retrieveReport(String reportName, String format) {
+        String report = reportName + "." + format;
+        String reportPath = outputDirectory + File.separator + report;
+        File file = new File(reportPath);
+
+        try {
+            if (file.exists())
+                return new InputStreamResource(new FileInputStream(file));
+        } catch (FileNotFoundException fnfe) {
+            LOGGER.error("Report {} cannot be retrieved. Exception Message: {}", report, fnfe.getMessage());
+        }
+
+        return null;
     }
 }
