@@ -1,6 +1,8 @@
 package com.iim.service.report.api.service;
 
+import org.springframework.core.io.Resource;
+
 public interface ReportGeneratorService {
 
-    byte[] generateReport(Long id, String reportName, String template, String format);
+    Resource generateReport(Long id, String reportName, String template, String format);
 }

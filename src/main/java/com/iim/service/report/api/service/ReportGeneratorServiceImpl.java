@@ -11,9 +11,13 @@ import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -35,7 +39,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     @Override
-    public byte[] generateReport(Long id, String reportName, String template, String format) {
+    public Resource generateReport(Long id, String reportName, String template, String format) {
         LOGGER.info("Started report generation...");
         String jrxmlFile = template + ".jrxml";
         String jasperFile = template + ".jasper";
@@ -70,7 +74,22 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
         LOGGER.info("Report created successfully");
 
-        return new byte[0];
+        return retrieveReport(reportName, format);
+    }
+
+    private Resource retrieveReport(String reportName, String format) {
+        String report = reportName + "." + format;
+        String reportPath = System.getProperty("java.io.tmpdir") + File.separator + report;
+        File file = new File(reportPath);
+
+        try {
+            if (file.exists())
+                return new InputStreamResource(new FileInputStream(file));
+        } catch (FileNotFoundException fnfe) {
+            LOGGER.error("Report {} cannot be retrieved. Exception Message: {}", report, fnfe.getMessage());
+        }
+
+        return null;
     }
 
     private void decideExportBasedOnInputFormat(String format, String reportName, JasperPrint jasperPrint) {
@@ -81,7 +100,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private void exportPDFReport(JasperPrint jasperPrint, String reportName) {
         String pdfFile = reportName + ".pdf";
-        String outputPath = new File("src/main/resources/static/reports/" + pdfFile).getAbsolutePath();
+        String outputPath = System.getProperty("java.io.tmpdir") + File.separator + pdfFile;
+
         LOGGER.info("Exporting pdf file: {} into {}", reportName, outputPath);
 
         JRPdfExporter exporter = new JRPdfExporter();

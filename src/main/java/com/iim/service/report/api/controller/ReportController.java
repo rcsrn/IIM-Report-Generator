@@ -3,6 +3,8 @@ package com.iim.service.report.api.controller;
 import com.iim.service.report.api.service.ReportGeneratorService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +22,7 @@ import static com.iim.service.report.api.constant.Path.createReportMapping;
 @RequestMapping(baseUrl)
 public class ReportController {
 
-    private ReportGeneratorService reportGeneratorService;
+    private final ReportGeneratorService reportGeneratorService;
 
     public ReportController(ReportGeneratorService reportGeneratorService) {
         this.reportGeneratorService = reportGeneratorService;
@@ -29,13 +31,16 @@ public class ReportController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
 
     @GetMapping(createReportMapping)
-    public ResponseEntity<?> createReport(@PathVariable Long id,
-                                          @RequestParam String template,
-                                          @RequestParam String reportName,
-                                          @RequestParam String format) {
+    public ResponseEntity<Resource> createReport(@PathVariable Long id,
+                                                 @RequestParam String template,
+                                                 @RequestParam String reportName,
+                                                 @RequestParam String format) {
         LOGGER.info("{Start Report Generator Application}");
         LOGGER.info("Params: {}, {}, {}, {}", id, reportName, template, format);
 
-        return ResponseEntity.ok().body(reportGeneratorService.generateReport(id, reportName, template, format));
+        return ResponseEntity.
+                ok().
+                contentType(MediaType.APPLICATION_PDF).
+                body(reportGeneratorService.generateReport(id, reportName, template, format));
     }
 }
