@@ -60,8 +60,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
             saveJasperFileIntoWorkingDirectory(jasperFile);
 
+            String subReportDirectory = workingDirectory + File.separator + "templates" + File.separator;
+
+            LOGGER.info("Sub Report Directory: {}", subReportDirectory);
+
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("id", id);
+            parameters.put("SUBREPORT_DIR", subReportDirectory);
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
 
