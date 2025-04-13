@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private final DataSource dataSource;
 
     @Value("${app.reports.directory}")
-    private String outputDirectory;
+    private String workingDirectory;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
 
@@ -48,15 +49,16 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         String jrxmlFile = template + ".jrxml";
         String jasperFile = template + ".jasper";
 
-        String inputPath = "/templates/" + jrxmlFile;
+        String inputPath = workingDirectory + File.separator + "templates" + File.separator + jrxmlFile;
         LOGGER.info("Input Path: {}", inputPath);
 
-        try(InputStream reportStream = getClass().getResourceAsStream(inputPath)) {
+        try(InputStream reportStream = new FileInputStream(inputPath)) {
 
             LOGGER.info("InputStream: {}", reportStream);
 
             JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
-            JRSaver.saveObject(jasperReport, jasperFile);
+
+            saveJasperFileIntoWorkingDirectory(jasperFile);
 
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("id", id);
@@ -81,6 +83,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return retrieveReport(reportName, format);
     }
 
+    private void saveJasperFileIntoWorkingDirectory(String jasperFile) {
+        String path = workingDirectory + File.separator + "templates" + File.separator + jasperFile;
+        try {
+            JRSaver.saveObject(jasperFile, new FileOutputStream(path));
+        } catch (FileNotFoundException fnfe) {
+            LOGGER.error("Jasper file {} cannot be saved into {}. Exception Message: {}", jasperFile, path , fnfe.getMessage());
+        } catch (JRException jre) {
+            LOGGER.error("Something failed while saving the file {}. Exception Message: {}", jasperFile, jre.getMessage());
+        }
+    }
+
     private void decideExportBasedOnInputFormat(String format, String reportName, JasperPrint jasperPrint) {
         if (format.equals(PDF_FORMAT)) {
             exportPDFReport(jasperPrint, reportName);
@@ -89,7 +102,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private void exportPDFReport(JasperPrint jasperPrint, String reportName) {
         String pdfFile = reportName + ".pdf";
-        String outputPath = outputDirectory + File.separator + pdfFile;
+        String outputPath = workingDirectory + File.separator + pdfFile;
 
         LOGGER.info("Exporting pdf file: {} into {}", reportName, outputPath);
 
@@ -106,7 +119,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private Resource retrieveReport(String reportName, String format) {
         String report = reportName + "." + format;
-        String reportPath = outputDirectory + File.separator + report;
+        String reportPath = workingDirectory + File.separator + report;
         File file = new File(reportPath);
 
         try {
