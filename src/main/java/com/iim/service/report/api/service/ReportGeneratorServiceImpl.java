@@ -28,13 +28,14 @@ import java.util.Map;
 import java.io.File;
 
 import static com.iim.service.report.api.constant.Constant.PDF_FORMAT;
+import static com.iim.service.report.api.constant.Constant.REPORT_GENERATOR_WORKING_DIRECTORY;
 
 @Service
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private final DataSource dataSource;
 
-    @Value("${app.reports.directory}")
+    @Value(REPORT_GENERATOR_WORKING_DIRECTORY)
     private String workingDirectory;
 
     private final Logger LOGGER = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
